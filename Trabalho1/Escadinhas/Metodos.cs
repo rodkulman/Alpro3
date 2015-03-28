@@ -10,18 +10,18 @@ namespace Escadinhas
 {
     public static class Metodos
     {
-        public static TimeSpan BruteForce()
+        public static TimeSpan BruteForce(bool allowRepetition, int workingBase)
         {
             var initTime = DateTime.Now;
 
-            var last = FromBase11("AAAAAAAAAAA");
+            var last = (long)Math.Pow(workingBase, workingBase);
 
             using (var stream = new StreamWriter(File.Open("numbers.log", FileMode.Create)))
             {
-                for (long i = 0; i <= last; i++)
+                for (long i = 0; i < last; i++)
                 {
-                    var number = ToBase11(i);
-                    if (checkRules(number, false))
+                    var number = ToBase(i, workingBase);
+                    if (checkRules(number, allowRepetition))
                     {
                         stream.WriteLine(number);
                     }
@@ -31,12 +31,12 @@ namespace Escadinhas
             return DateTime.Now - initTime;
         }
 
-        public static TimeSpan SmartList()
+        public static TimeSpan SmartList(bool allowRepetition, int workingBase)
         {
             var initTime = DateTime.Now;
 
-            var last2Digits = FromBase11("AA");
-            var listOfDigits = new List<long>[10];
+            var last2Digits = Math.Pow(workingBase, 2);
+            var listOfDigits = new List<long>[workingBase - 1];
             var dimension = 2;
 
             /*
@@ -54,7 +54,7 @@ namespace Escadinhas
              * The only exception to this rule is 2-digit, because we can't have 1 digit numbers
              * Those have to be brute forced.
              * 
-             */ 
+             */
 
             for (int i = 0; i < listOfDigits.Length; i++)
             {
@@ -63,23 +63,23 @@ namespace Escadinhas
 
             for (long i = 0; i < last2Digits; i++)
             {
-                var number = ToBase11(i);
-                if (checkRules(number, false))
+                var number = ToBase(i, workingBase);
+                if (checkRules(number, allowRepetition))
                 {
                     listOfDigits[dimension - 2].Add(i);
                 }
             }
 
-            while (++dimension <= 11)
+            while (++dimension <= workingBase)
             {
-                for (int i = 0; i < 11; i++)
+                for (int i = 0; i < workingBase; i++)
                 {
                     foreach (var verifiedNumber in listOfDigits[dimension - 3])
                     {
-                        var number = ToBase11(i) + ToBase11(verifiedNumber);
+                        var number = ToBase(i, workingBase) + ToBase(verifiedNumber, workingBase);
                         if (checkRules(number, false))
                         {
-                            listOfDigits[dimension - 2].Add(FromBase11(number));
+                            listOfDigits[dimension - 2].Add(FromBase(number, workingBase));
                         }
                     }
                 }
@@ -91,7 +91,7 @@ namespace Escadinhas
                 {
                     foreach (var number in lst)
                     {
-                        stream.WriteLine(ToBase11(number));
+                        stream.WriteLine(ToBase(number, workingBase));
                     }
                 }
             }
@@ -99,18 +99,18 @@ namespace Escadinhas
             return DateTime.Now - initTime;
         }
 
-        #region Base 11 Conversion
+        #region Base Conversion
 
-        private static string ToBase11(long number)
+        private static string ToBase(long number, int workingBase)
         {
             var retVal = string.Empty;
 
-            while (number >= 11)
+            while (number >= workingBase)
             {
-                var mod = number % 11;
+                var mod = number % workingBase;
                 retVal += mod == 10 ? "A" : mod.ToString();
 
-                number = number / 11;
+                number = number / workingBase;
             }
 
             retVal += number == 10 ? "A" : number.ToString();
@@ -118,13 +118,13 @@ namespace Escadinhas
             return new string(retVal.Reverse().ToArray());
         }
 
-        private static long FromBase11(string number)
+        private static long FromBase(string number, int workingBase)
         {
             var retVal = 0L;
 
             for (int i = 0; i < number.Length; i++)
             {
-                retVal += (long)Math.Pow(11, i) * long.Parse(number.Substring(number.Length - 1 - i, 1), NumberStyles.AllowHexSpecifier);
+                retVal += (long)Math.Pow(workingBase, i) * long.Parse(number.Substring(number.Length - 1 - i, 1), NumberStyles.AllowHexSpecifier);
             }
 
             return retVal;
