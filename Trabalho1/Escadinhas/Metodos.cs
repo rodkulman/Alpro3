@@ -61,7 +61,7 @@ namespace Escadinhas
                 listOfDigits[i] = new List<long>();
             }
 
-            for (long i = 0; i < last2Digits; i++)
+            for (long i = workingBase; i < last2Digits; i++)
             {
                 var number = ToBase(i, workingBase);
                 if (checkRules(number, allowRepetition))
@@ -72,12 +72,18 @@ namespace Escadinhas
 
             while (++dimension <= workingBase)
             {
-                for (int i = 0; i < workingBase; i++)
+                foreach (var verifiedNumber in listOfDigits[dimension - 3])
                 {
-                    foreach (var verifiedNumber in listOfDigits[dimension - 3])
+                    var low = (int)FromBase(ToBase(verifiedNumber, workingBase).Substring(0, 1), workingBase) - 2;
+                    var high = low + 4;
+
+                    if (low < 1) { low = 1; }
+                    if (high > workingBase - 1) { high = workingBase - 1; }
+
+                    for (int i = low; i <= high; i++)
                     {
                         var number = ToBase(i, workingBase) + ToBase(verifiedNumber, workingBase);
-                        if (checkRules(number, false))
+                        if (checkRules(number, allowRepetition))
                         {
                             listOfDigits[dimension - 2].Add(FromBase(number, workingBase));
                         }
