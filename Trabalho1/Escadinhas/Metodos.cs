@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace Escadinhas
 {
@@ -31,6 +32,7 @@ namespace Escadinhas
             return DateTime.Now - initTime;
         }
 
+        // errada
         public static TimeSpan SmartList(bool allowRepetition, int workingBase)
         {
             var initTime = DateTime.Now;
@@ -103,6 +105,55 @@ namespace Escadinhas
             }
 
             return DateTime.Now - initTime;
+        }
+
+        private static long count;
+        public static void FastList(bool allowRepetition, int workingBase)
+        {
+            var initTime = DateTime.Now;
+            count = 0;            
+
+            for (int i = 1; i < workingBase; i++)
+            {
+                Debugger.Log(0, "", ToBase(i, workingBase) + "\r\n");
+                count++;
+
+                addRange(allowRepetition, workingBase, i);
+            }
+
+            Debugger.Log(0, string.Empty, "Generated Numbers: " + count + "\r\n");
+            Debugger.Log(0, string.Empty, "Time Elapsed: " + (DateTime.Now - initTime) + "\r\n");
+        }
+
+        private static void addRange(bool allowRepetition, int workingBase, long number)
+        {
+            var previous = ToBase(number, workingBase);
+            var mid = (int)FromBase(previous.Substring(previous.Length - 1), workingBase);
+            var low = mid - 2;
+            var high = mid + 2;
+
+            if (low < 0) { low = 0; }
+            if (high > workingBase - 1) { high = workingBase - 1; }
+
+            for (int i = low; i <= high; i++)
+            {
+                if (!allowRepetition && mid == i) { continue; }
+
+                var extra = ToBase(i, workingBase);
+
+                if (!allowRepetition && previous.Contains(extra)) { continue; }
+
+                var generated = previous + extra;
+
+                Debugger.Log(0, string.Empty, generated + "\r\n");
+
+                count++;
+
+                if (generated.Length < workingBase)
+                {
+                    addRange(allowRepetition, workingBase, FromBase(generated, workingBase));
+                }
+            }
         }
 
         #region Base Conversion
