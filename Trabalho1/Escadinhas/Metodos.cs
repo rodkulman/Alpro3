@@ -111,7 +111,7 @@ namespace Escadinhas
         public static void FastList(bool allowRepetition, int workingBase)
         {
             var initTime = DateTime.Now;
-            count = 0;            
+            count = 0;
 
             for (int i = 1; i < workingBase; i++)
             {
@@ -154,6 +154,48 @@ namespace Escadinhas
                     addRange(allowRepetition, workingBase, FromBase(generated, workingBase));
                 }
             }
+        }
+
+        private static void SumList(bool allowRepetitions, int workingBase)
+        {
+            var initTime = DateTime.Now;
+            count = workingBase - 1;
+
+            for (int i = 1; i < workingBase; i++)
+            {
+                count += sumListWork(allowRepetitions, workingBase, new int[] { i });
+            }
+
+            Debugger.Log(0, string.Empty, "Generated Numbers: " + count + "\r\n");
+            Debugger.Log(0, string.Empty, "Time Elapsed: " + (DateTime.Now - initTime) + "\r\n");
+        }
+
+        private static long sumListWork(bool allowRepetitions, int workingBase, int[] numbers)
+        {
+            var low = numbers.Last() - 2;
+            var high = numbers.Last() + 2;
+            if (low < 0) { low = 0; }
+            if (high > workingBase - 1) { high = workingBase - 1; }
+
+            var retVal = 0L;
+
+            if (numbers.Length < workingBase)
+            {
+                var param = new int[numbers.Length + 1];
+                Array.Copy(numbers, param, numbers.Length);
+
+                for (int i = low; i <= high; i++)
+                {
+                    if (!allowRepetitions && numbers.Contains(i)) { continue; }
+
+                    param[param.Length - 1] = i;
+
+                    retVal += sumListWork(allowRepetitions, workingBase, param) + 1;
+                }
+
+            }
+
+            return retVal;
         }
 
         #region Base Conversion
