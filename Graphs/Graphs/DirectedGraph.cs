@@ -20,12 +20,40 @@ namespace Graphs
 
         public IEnumerable<T> GetSources()
         {
-            yield break;
+            for (int i = 0; i < base.vertices.Count; i++)
+            {
+                if (hasEntry(i)) { continue; }
+                if (hasExit(i)) { yield return base.vertices[i]; }
+            }
+        }
+
+        private bool hasExit(int verticeIndex)
+        {
+            for (int i = 0; i < base.vertices.Count; i++)
+            {
+                if (base.matrix[verticeIndex, i]) { return true; }
+            }
+
+            return false;
+        }
+
+        private bool hasEntry(int verticeIndex)
+        {
+            for (int i = 0; i < base.vertices.Count; i++)
+            {
+                if (base.matrix[i, verticeIndex]) { return true; }
+            }
+
+            return false;
         }
 
         public IEnumerable<T> GetSinks()
         {
-            yield break;
+            for (int i = 0; i < base.vertices.Count; i++)
+            {
+                if (hasExit(i)) { continue; }
+                if (hasEntry(i)) { yield return base.vertices[i]; }
+            }
         }
     }
 }
