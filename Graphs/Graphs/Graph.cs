@@ -73,6 +73,37 @@ namespace Graphs
             }
         }
 
+        protected bool[] visited;
+
+        protected void clearVisited()
+        {
+            visited = new bool[vertices.Count];
+        }
+
+        public int CountNodesReachableFrom(T vertice)
+        {
+            clearVisited();
+
+            return nodesReachableFrom(vertice).Distinct().Count();
+        }
+
+        private IEnumerable<T> nodesReachableFrom(T vertice)
+        {
+            var vertIndex = vertices.IndexOf(vertice);
+
+            if (visited[vertIndex]) { yield break; }
+            visited[vertIndex] = true;
+
+            for (int i = 0; i < matrix.GetLength(1); i++)
+            {
+                if (matrix[vertIndex, i])
+                {
+                    yield return vertices[i];
+                    foreach (var element in nodesReachableFrom(vertices[i])) { yield return element; }
+                }
+            }
+        }
+
         #region Funcionality
 
         private string listItens(IEnumerable list)
