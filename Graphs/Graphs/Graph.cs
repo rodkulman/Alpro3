@@ -104,6 +104,21 @@ namespace Graphs
             }
         }
 
+        public IEnumerable<T> GetLevelsAhead(T vertice, int levels)
+        {
+            if (levels < 0) { throw new ArgumentException("levels must be positive."); }
+            if (levels == 0) { Enumerable.Empty<T>(); }
+
+            var list = this.FindAllAdjacents(vertice);
+
+            for (int i = 1; i < levels; i++)
+            {
+                list = list.SelectMany(n => FindAllAdjacents(n));
+            }
+
+            return list.Distinct();
+        }
+
         #region Funcionality
 
         private string listItens(IEnumerable list)
